@@ -224,4 +224,41 @@ temperatures (tenth of degree C). Each weather station may collect only a subset
 of these variables, the resulting dataset contains extensive missing data. The 
 number of missing data is `r sum(is.na(ny_noaa))` 
 
+## Cleaning and tidying the data
+
+In this step, the variables `prcp:tmin` are converted to double for consistency. 
+Then, the date is separated in to year, month, and day columns. Then, 
+precipitation unit is changed to millimeter, maximum and minimum temperature 
+unit is changed to degree C. 
+
+```{r}
+ noaa_tidy <-
+   ny_noaa %>%
+    separate(date, sep = "-", into = c("year", "month", "day")) %>% 
+    mutate(across(.col = (c("year", "month", "day")), as.integer)) %>% 
+    mutate(      
+        prcp = as.double(prcp),
+        snow = as.double(snow),
+        snwd = as.double(snwd),
+        tmax = as.double(tmax),
+        tmin = as.double(tmin),
+        month = month.name[month],
+        prcp = prcp / 10,
+        tmax = tmax / 10,
+        tmin = tmin / 10) 
+```
+
+## Answering questions
+
+For snowfall, 0 is the most commonly observed value since snowfall does not occur
+most days of the year. 
+
+```{r}
+ noaa_tidy %>%
+    group_by(snow) %>% 
+    count(snow) %>% 
+    arrange(desc(n))
+```
+
+
 ## 
