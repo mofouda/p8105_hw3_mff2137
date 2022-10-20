@@ -203,3 +203,25 @@ of the day. While the data shows that number of activities is higher in certain
 days (Wednesday, Thursday, Friday), these patterns aligns with the normal activity
 cycle expected along the day(i.e. increase in number during the day and early 
 hours of the night and very low outside these times).
+
+# Problem 3
+
+## Read in data
+
+```{r}
+data("ny_noaa")
+
+ny_noaa <-
+  ny_noaa %>% 
+  as_tibble(ny_noaa)
+```
+
+The `ny_noaa` dataset is a dataframe that has `r nrow(ny_noaa)` rows and 
+`r ncol(ny_noaa)` columns. Some key variables include weather station identifiers,
+date on which data was collected, variables showing the amount of precipitation 
+(tenth of mm), and snow (mm) that fell, snow depth (mm), the maximum and minimum
+temperatures (tenth of degree C). Each weather station may collect only a subset 
+of these variables, the resulting dataset contains extensive missing data. The 
+number of missing data is `r sum(is.na(ny_noaa))` 
+
+## 
