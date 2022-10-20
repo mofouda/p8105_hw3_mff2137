@@ -113,12 +113,12 @@ instacart %>%
 
 # Problem 2
 
-## Read in data
+## Importing and tidying the data
 
 This code chunk imports and cleans the `accel_data` dataset, then switch it from
 the wide to the long format to make it easier to manipulate, then, creates a new
 variable `weekday_vs_weedend` to identify if the day the activity is measured falls
-on a weekend or a weekday. 
+on a weekend or a weekday.  
 
 ```{r}
 accel <-
@@ -132,7 +132,74 @@ accel <-
         ) %>% 
     mutate(
         weekday_vs_weekend = if_else(
-            day %in% c("Saturday", "Sunday"), "weekend", "weekday"))
+            day %in% c("Saturday", "Sunday"), "weekend", "weekday"),
+        minute= as.integer(minute),
+        day = factor(day))
 ```
 
 
+## Answering questions about the data 
+
+The resulting dataset has `r nrow(accel)` rows and 
+`r ncol(accel)` columns. Some of the key variables include week, day identifier, 
+the minute at which the activity is measured , and the number of activities at 
+each minute of each day. There's also a variable that identifiers if the day on which 
+activities are measured falls in a weekday vs a weekend.
+
+Below is a code that aggregates across minutes and creates a total activities per 
+day variable. Results are shown in the table, demonstrate a higher number of total 
+activities in the last 3 weekdays (Wednesday through Friday).
+
+
+```{r}
+accel %>% 
+    group_by(day) %>% 
+    summarize(
+        total_act = sum(n_activities)) %>% 
+    arrange(total_act) %>% 
+    knitr::kable()
+```
+
+
+Next, making a single-panel plot that shows the 24-hour activity time courses for
+each day using color to indicate day of the week.
+
+```{r}
+accel %>% 
+    filter(n_activities < 2500) %>%
+    ggplot(aes(x = minute, y = n_activities, color = day)) + 
+    geom_point(alpha = .7) +
+    geom_smooth(se = FALSE) +
+    labs(
+    title = "Activity plot",
+    x = "Minute of the day",
+    y = "Number of activities",
+    caption = "Data from CUMC") + 
+  scale_x_continuous(
+    breaks = c(250, 500, 750, 1000, 1250, 1500))
+```
+
+Alternatively, the plot below has the same variables and data but less crowded
+which could be more informative. 
+
+```{r}
+accel %>% 
+    filter(n_activities < 2500) %>% 
+    ggplot(aes(x = minute, y = n_activities, color = day)) + 
+    geom_smooth(se = FALSE) +
+    labs(
+    title = "Activity plot",
+    x = "Minute of the day",
+    y = "Number of activities",
+    caption = "Data from CUMC") + 
+  scale_x_continuous(
+    breaks = c(250, 500, 750, 1000, 1250, 1500))
+```
+
+Based on the plots above shows that the number of activities tend to markedly 
+increase around minute 250 in across all days then fluctuates as the day progress
+while staying just above 200 activities, then a marked decrease around minute 1300 
+of the day. While the data shows that number of activities is higher in certain 
+days (Wednesday, Thursday, Friday), these patterns aligns with the normal activity
+cycle expected along the day(i.e. increase in number during the day and early 
+hours of the night and very low outside these times).
